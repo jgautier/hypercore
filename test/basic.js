@@ -176,6 +176,33 @@ tape('create from existing keys', function (t) {
     return storage[fullname]
   }
 })
+tape('create from seed', function (t) {
+  t.plan(3)
+
+  var storage1 = storage.bind(null, '1')
+  var storage2 = storage.bind(null, '2')
+
+  var feed = hypercore(storage1, { seed: 'seed' })
+
+  feed.append('hi', function () {
+    var otherFeed = hypercore(storage2, { seed: 'seed' })
+    var store = otherFeed._storage
+    otherFeed.close(function () {
+      store.open({key: feed.key}, function (err, data) {
+        t.error(err)
+        t.equals(data.key.toString('hex'), feed.key.toString('hex'))
+        t.equals(data.secretKey.toString('hex'), feed.secretKey.toString('hex'))
+      })
+    })
+  })
+
+  function storage (prefix, name) {
+    var fullname = prefix + '_' + name
+    if (storage[fullname]) return storage[fullname]
+    storage[fullname] = ram()
+    return storage[fullname]
+  }
+})
 
 tape('head', function (t) {
   t.plan(6)

@@ -52,6 +52,7 @@ function Feed (createStorage, key, opts) {
   this.byteLength = 0
   this.maxRequests = opts.maxRequests || 16
   this.key = key || null
+  this.seed = opts.seed || null
   this.discoveryKey = this.key && crypto.discoveryKey(this.key)
   this.secretKey = secretKey
   this.bitfield = null
@@ -192,7 +193,7 @@ Feed.prototype._open = function (cb) {
     if (key && !self._overwrite && !self.key) self.key = key
 
     if (!self.key && self.live) {
-      var keyPair = crypto.keyPair()
+      var keyPair = crypto.keyPair(self.seed)
       self.secretKey = keyPair.secretKey
       self.key = keyPair.publicKey
       generatedKey = true
@@ -245,7 +246,7 @@ Feed.prototype._open = function (cb) {
       }
 
       if (!self.key && self.live) {
-        var keyPair = crypto.keyPair()
+        var keyPair = crypto.keyPair(self.seed)
         self.secretKey = keyPair.secretKey
         self.key = keyPair.publicKey
       }
